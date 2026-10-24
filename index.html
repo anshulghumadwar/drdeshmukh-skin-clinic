@@ -191,14 +191,13 @@
             text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             transition: 0.3s; animation: floatPulse 2s infinite;
         }
-        .float-wa { background: linear-gradient(135deg, #25D366, #128C7E); }
         .float-call { background: linear-gradient(135deg, var(--accent-pink), #c2185b); }
         .float-btn:hover { transform: scale(1.15) translateY(-5px); animation: none; }
 
         @keyframes floatPulse {
-            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6); }
-            70% { box-shadow: 0 0 0 20px rgba(37, 211, 102, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.6); }
+            70% { box-shadow: 0 0 0 20px rgba(233, 30, 99, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0); }
         }
 
         /* === Footer === */
@@ -443,31 +442,41 @@
                 </div>
             </div>
             
+            <!-- Appointment Form -->
             <div class="contact-form">
                 <h3 style="color: var(--primary-blue); margin-bottom: 25px; font-size: 26px;">अपॉइंटमेंट बुक करा</h3>
                 <form id="appointmentForm">
-                    <input type="text" id="patientName" placeholder="तुमचे पूर्ण नाव" required>
-                    <input type="tel" id="patientMobile" placeholder="मोबाईल नंबर" required>
+                    <input type="text" id="patientName" placeholder="तुमचे पूर्ण नाव *" required>
+
+                    <input type="number" id="patientAge" placeholder="वय *" min="1" max="120" required>
+
+                    <input type="text" id="patientVillage" placeholder="गाव / शहर *" required>
+
+                    <input type="tel" id="patientMobile" placeholder="मोबाईल नंबर (10 अंकी) *"
+                           pattern="[6-9][0-9]{9}" maxlength="10" required>
+
                     <select id="patientProblem" required>
-                        <option value="">समस्या निवडा</option>
+                        <option value="">समस्या निवडा *</option>
                         <option value="त्वचा (Skin)">त्वचा (Skin)</option>
                         <option value="केस (Hair)">केस (Hair)</option>
                         <option value="लेझर (Laser)">लेझर (Laser)</option>
+                        <option value="सौंदर्य (Beauty/Face)">सौंदर्य (Beauty/Face)</option>
                         <option value="इतर (Other)">इतर (Other)</option>
                     </select>
-                    <textarea id="patientMessage" rows="4" placeholder="तुमचा मेसेज (ऐच्छिक)"></textarea>
-                    <button type="submit" class="btn" style="width: 100%; font-size: 18px;">अपॉइंटमेंट बुक करा</button>
+
+                    <textarea id="patientMessage" rows="3" placeholder="तुमचा मेसेज (ऐच्छिक)"></textarea>
+
+                    <button type="submit" class="btn" style="width: 100%; font-size: 18px;">
+                        अपॉइंटमेंट बुक करा
+                    </button>
                 </form>
             </div>
 
         </div>
     </section>
 
-    <!-- Floating Buttons -->
+    <!-- Floating Button (Only Call) -->
     <div class="floating-btns">
-        <a href="#" id="waBtn" target="_blank" class="float-btn float-wa" title="WhatsApp वर मेसेज करा">
-            <i class="fa-brands fa-whatsapp"></i>
-        </a>
         <a href="tel:9272550699" class="float-btn float-call" title="डायरेक्ट कॉल करा">
             <i class="fa-solid fa-phone"></i>
         </a>
@@ -503,48 +512,48 @@
         });
 
         // ==========================================
-        // === WhatsApp Auto Message (Floating Btn) ===
+        // === Appointment Form → WhatsApp (Bundle + Redirect) ===
         // ==========================================
-        const waMessage = `नमस्कार डॉ. देशमुख क्लिनिक टीम, 🙏
-
-मला खालील तपशिलासाठी अपॉइंटमेंट बुक करायची आहे:
-
-👤 नाव: 
-🎂 वय: 
-📍 गाव: 
-🩺 समस्या: (त्वचा / केस / लेझर / सौंदर्य)
-🕒 पसंतीची वेळ: 
-
-कृपया मला उपलब्ध वेळ व अधिक माहिती कळवा. धन्यवाद!`;
-
-        document.getElementById('waBtn').href =
-            "https://wa.me/919272550699?text=" + encodeURIComponent(waMessage);
-
-        // ==========================================
-        // === Appointment Form → WhatsApp Redirect ===
-        // ==========================================
-        document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+        document.getElementById('appointmentForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
             const name    = document.getElementById('patientName').value.trim();
+            const age     = document.getElementById('patientAge').value.trim();
+            const village = document.getElementById('patientVillage').value.trim();
             const mobile  = document.getElementById('patientMobile').value.trim();
             const problem = document.getElementById('patientProblem').value;
             const message = document.getElementById('patientMessage').value.trim();
 
+            // ---- Validation ----
+            if (!name || !age || !village || !mobile || !problem) {
+                alert('कृपया सर्व * मार्क केलेली माहिती भरा.');
+                return;
+            }
+            if (!/^[6-9]\d{9}$/.test(mobile)) {
+                alert('कृपया योग्य 10 अंकी मोबाईल नंबर टाका (उदा. 9272550699).');
+                return;
+            }
+
+            // ---- WhatsApp Message Bundle ----
             const text = `नमस्कार डॉ. देशमुख क्लिनिक टीम, 🙏
 
-मला अपॉइंटमेंट हवी आहे.
+मला अपॉइंटमेंट बुक करायची आहे.
 
-👤 नाव: ${name}
-📱 मोबाईल: ${mobile}
-🩺 समस्या: ${problem}
-📝 मेसेज: ${message || '—'}
+━━━━━━━━━━━━━━━━━
+👤 नाव         : ${name}
+🎂 वय          : ${age}
+📍 गाव         : ${village}
+📱 मोबाईल     : ${mobile}
+🩺 समस्या     : ${problem}
+📝 मेसेज      : ${message || '—'}
+━━━━━━━━━━━━━━━━━
 
 कृपया माझी अपॉइंटमेंट कन्फर्म करा. धन्यवाद!`;
 
-            window.open("https://wa.me/919272550699?text=" + encodeURIComponent(text), "_blank");
+            // ---- Redirect to WhatsApp ----
+            const url = "https://wa.me/919272550699?text=" + encodeURIComponent(text);
+            window.open(url, "_blank");
 
-            // Optional: form reset
             this.reset();
         });
     </script>
